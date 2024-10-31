@@ -17,3 +17,7 @@ type Product struct {
 	Created_at  time.Time
 	Updated_at  time.Time
 }
+
+type BestProduct struct {
+	BestMonth bool `form:"bestMonth"`
+}

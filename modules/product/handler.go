@@ -5,6 +5,7 @@ import (
 	"exclusive-web/web/entity"
 	"exclusive-web/web/repository"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -33,10 +34,12 @@ func (handler ProductRequestHandler) HandlerProduct(router *gin.Engine) {
 	}
 
 	productGroup := router.Group("/product")
+	productGroup.GET("/", handler.GetAllProduct)
 	productGroup.GET("/flash-sell", handler.FindProductFlashSell)
 	productGroup.GET("/best-product", handler.GetBestProduct)
 	productGroup.POST("/create", handler.Create)
 	productGroup.POST("/upload", handler.Upload)
+	productGroup.GET("/detail/:productId", handler.Detail)
 }
 
 func (handler ProductRequestHandler) FindProductFlashSell(ctx *gin.Context) {
@@ -50,8 +53,40 @@ func (handler ProductRequestHandler) FindProductFlashSell(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+func (handler ProductRequestHandler) GetAllProduct(ctx *gin.Context) {
+	var err error
+	paginate := dto.PaginationRequest{}
+
+	err = ctx.BindQuery(&paginate)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
+		return
+	}
+
+	response, err := handler.ctrl.GetAllProduct(ctx, paginate)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
 func (handler ProductRequestHandler) GetBestProduct(ctx *gin.Context) {
-	response, err := handler.ctrl.GetBestProduct(ctx)
+	var err error
+
+	bestProduct := entity.BestProduct{}
+
+	err = ctx.BindQuery(&bestProduct)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
+		return
+	}
+
+	response, err := handler.ctrl.GetBestProduct(ctx, bestProduct)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
@@ -108,6 +143,24 @@ func (handler ProductRequestHandler) Upload(ctx *gin.Context) {
 		Success:      true,
 		MessageTitle: "Succeeded",
 		Message:      "Create new product Succeeded",
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (handler ProductRequestHandler) Detail(ctx *gin.Context) {
+	productId, err := strconv.ParseInt(ctx.Param("productId"), 10, 64)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
+		return
+	}
+
+	response, err := handler.ctrl.Detail(ctx, int(productId))
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
+		return
 	}
 
 	ctx.JSON(http.StatusOK, response)
