@@ -30,7 +30,7 @@ type ProductInterfaceRepository interface {
 
 func (prdct Product) FindProductFlashSell(ctx context.Context) ([]entity.Product, error) {
 	products := make([]entity.Product, 0)
-	err := prdct.db.WithContext(ctx).Where("flash_sell= ?", true).Find(&products).Error
+	err := prdct.db.WithContext(ctx).Where("flash_sell= ?", true).Order("Created_at desc").Find(&products).Error
 	return products, err
 }
 
