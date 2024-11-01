@@ -34,7 +34,7 @@ func (handler ProductRequestHandler) HandlerProduct(router *gin.Engine) {
 	}
 
 	productGroup := router.Group("/product")
-	productGroup.GET("/", handler.GetAllProduct)
+	productGroup.GET("/all", handler.GetAllProduct)
 	productGroup.GET("/flash-sell", handler.FindProductFlashSell)
 	productGroup.GET("/best-product", handler.GetBestProduct)
 	productGroup.POST("/create", handler.Create)

@@ -44,3 +44,8 @@ func DefaultErrorBaseResponseWithMessage(err error) (BaseResponse, error) {
 		Message:      err.Error(),
 	}, err
 }
+
+type BaseResponsePagination struct {
+	Total int64       `json:"total"`
+	Data  interface{} `json:"data"`
+}

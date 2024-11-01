@@ -33,18 +33,14 @@ func Paginate(page int, perPage int, count int) Pagination {
 	}
 }
 
-func CountLimitAndOffset(page int, dataPerPage int) (int, int, int64) {
+func CountLimitAndOffset(page int, dataPerPage int) (int, int) {
 	var offset, limit int
-	var count int64
 
-	offset = -1
+	offset = 0
 	if page > 0 {
 		offset = (page - 1) * dataPerPage
 	}
 
-	limit = -1
-	if dataPerPage > 0 {
-		limit = dataPerPage
-	}
-	return offset, limit, count
+	limit = dataPerPage
+	return offset, limit
 }

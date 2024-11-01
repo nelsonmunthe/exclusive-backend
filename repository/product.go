@@ -5,7 +5,6 @@ import (
 	"exclusive-web/web/dto"
 	"exclusive-web/web/entity"
 	"exclusive-web/web/utils/pagination"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -25,7 +24,7 @@ type ProductInterfaceRepository interface {
 	GetBestProduct(ctx context.Context, bestProduct entity.BestProduct) ([]entity.Product, error)
 	Create(ctx context.Context, product entity.Product) (entity.Product, error)
 	Detail(ctx context.Context, productId int) (entity.Product, error)
-	GetAllProduct(ctx context.Context, paginate dto.PaginationRequest) ([]entity.Product, error)
+	GetAllProduct(ctx context.Context, paginate dto.PaginationRequest) ([]entity.Product, int64, error)
 }
 
 func (prdct Product) FindProductFlashSell(ctx context.Context) ([]entity.Product, error) {
@@ -44,12 +43,19 @@ func (prdct Product) GetBestProduct(ctx context.Context, bestProduct entity.Best
 	return products, err
 }
 
-func (prdct Product) GetAllProduct(ctx context.Context, paginate dto.PaginationRequest) ([]entity.Product, error) {
-	offset, limit, count := pagination.CountLimitAndOffset(paginate.Page, paginate.PerPage)
-	fmt.Print("GetAllProduct", offset, limit, count)
+func (prdct Product) GetAllProduct(ctx context.Context, paginate dto.PaginationRequest) ([]entity.Product, int64, error) {
+	var err error
+	count := int64(0)
+	offset, limit := pagination.CountLimitAndOffset(paginate.Page, paginate.PerPage)
+
 	products := make([]entity.Product, 0)
-	err := prdct.db.WithContext(ctx).Order("id desc").Offset(offset).Limit(limit).Find(&products).Error
-	return products, err
+	err = prdct.db.WithContext(ctx).Order("id desc").Offset(offset).Limit(limit).Find(&products).Error
+	if err != nil {
+		return products, count, err
+	}
+
+	err = prdct.db.WithContext(ctx).Table("products").Count(&count).Error
+	return products, count, err
 }
 
 func (prdct Product) Create(ctx context.Context, product entity.Product) (entity.Product, error) {

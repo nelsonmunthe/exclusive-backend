@@ -70,14 +70,19 @@ func (pu ProductUsecase) Detail(ctx context.Context, productId int) (dto.BaseRes
 }
 
 func (pu ProductUsecase) GetAllProduct(ctx context.Context, pagination dto.PaginationRequest) (dto.BaseResponse, error) {
-	products, err := pu.repository.GetAllProduct(ctx, pagination)
+	products, count, err := pu.repository.GetAllProduct(ctx, pagination)
 
 	if err != nil {
 		return dto.DefaultErrorBaseResponseWithMessage(err)
 	}
 
+	response := dto.BaseResponsePagination{
+		Data:  products,
+		Total: count,
+	}
+
 	return dto.BaseResponse{
-		Data:         products,
+		Data:         response,
 		Success:      true,
 		MessageTitle: "Succeeded",
 		Message:      "Get all Product Succeeded",
