@@ -10,6 +10,6 @@ type ControllerPurchase struct {
 	usecase PurchaseUsecaseInteface
 }
 
-func (ctrl ControllerPurchase) Create(ctx context.Context, purchase []entity.Purchase) (dto.BaseResponse, error) {
+func (ctrl ControllerPurchase) Create(ctx context.Context, purchase entity.CreatePurchase) (dto.BaseResponse, error) {
 	return ctrl.usecase.Create(ctx, purchase)
 }

@@ -4,6 +4,7 @@ import (
 	"exclusive-web/web/middleware"
 	"exclusive-web/web/modules/category"
 	"exclusive-web/web/modules/product"
+	"exclusive-web/web/modules/purchase"
 	"exclusive-web/web/modules/user"
 	db "exclusive-web/web/utils"
 	"log"
@@ -42,6 +43,9 @@ func main() {
 
 	productHandler := product.NewRequestHandler(dsn)
 	productHandler.HandlerProduct(router)
+
+	purchaseHandler := purchase.NewRequestHandler(dsn)
+	purchaseHandler.HandlerPurchase(router)
 
 	err = router.Run(":8888")
 

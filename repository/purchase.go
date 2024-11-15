@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"exclusive-web/web/entity"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -18,10 +19,11 @@ func NewPurchase(db *gorm.DB) Purchase {
 }
 
 type PurcaseRepositoryInteface interface {
-	Create(ctx context.Context, purchase []entity.Purchase) ([]entity.Purchase, error)
+	Create(ctx context.Context, purchase entity.CreatePurchase) (entity.CreatePurchase, error)
 }
 
-func (p Purchase) Create(ctx context.Context, purchase []entity.Purchase) ([]entity.Purchase, error) {
-	err := p.db.Model(&entity.Purchase{}).Create(purchase).Error
+func (p Purchase) Create(ctx context.Context, purchase entity.CreatePurchase) (entity.CreatePurchase, error) {
+	err := p.db.Model(&entity.Purchase{}).Create(purchase.Purchase).Error
+	fmt.Println("purchase", purchase.Purchase)
 	return purchase, err
 }

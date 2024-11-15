@@ -31,15 +31,20 @@ func (handler PurchaseRequestHandler) HandlerPurchase(router *gin.Engine) {
 	}
 
 	purchaseGroup := router.Group("/purchase")
-	purchaseGroup.POST("/", handler.Create)
+	purchaseGroup.POST("/create", handler.Create)
 }
 
 func (handler PurchaseRequestHandler) Create(ctx *gin.Context) {
 	var err error
-	purchase := []entity.Purchase{}
+	purchase := entity.CreatePurchase{}
+	// totalPrice := 0;
 
 	err = ctx.BindJSON(&purchase)
-
+	// fmt.Println("purchase", purchase)
+	// for index, value := range purchase.Purchase {
+	// 	purchase.Purchase[index].Product_id =
+	// 	// fmt.Println("purchase detail", index, value)
+	// }
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
 		return

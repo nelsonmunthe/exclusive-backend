@@ -12,10 +12,10 @@ type PurchaseUsecase struct {
 }
 
 type PurchaseUsecaseInteface interface {
-	Create(ctx context.Context, purchase []entity.Purchase) (dto.BaseResponse, error)
+	Create(ctx context.Context, purchase entity.CreatePurchase) (dto.BaseResponse, error)
 }
 
-func (uc PurchaseUsecase) Create(ctx context.Context, purchase []entity.Purchase) (dto.BaseResponse, error) {
+func (uc PurchaseUsecase) Create(ctx context.Context, purchase entity.CreatePurchase) (dto.BaseResponse, error) {
 	purchase, err := uc.repository.Create(ctx, purchase)
 
 	if err != nil {
