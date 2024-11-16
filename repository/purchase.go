@@ -23,7 +23,8 @@ type PurcaseRepositoryInteface interface {
 }
 
 func (p Purchase) Create(ctx context.Context, purchase entity.CreatePurchase) (entity.CreatePurchase, error) {
-	err := p.db.Model(&entity.Purchase{}).Create(purchase.Purchase).Error
-	fmt.Println("purchase", purchase.Purchase)
+	fmt.Println("purchase", purchase.Purchase[0])
+	// err := p.db.Model(&entity.Purchase{}).Create(purchase.Purchase[0]).Error
+	err := p.db.WithContext(ctx).Save(&purchase.Purchase).Error
 	return purchase, err
 }

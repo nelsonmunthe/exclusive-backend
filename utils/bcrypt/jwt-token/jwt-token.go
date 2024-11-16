@@ -10,11 +10,20 @@ import (
 var secretKey = []byte("secret-key")
 
 func GenerateToken(username string, userId string) (string, error) {
+	type TokenData struct {
+		Username string `json:"username"`
+		UserId   string `json:"userId"`
+	}
+
+	tokenData := TokenData{
+		Username: username,
+		UserId:   userId,
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"username": username,
-			"userId":   userId,
-			"exp":      time.Now().Add(time.Hour * 24).Unix(),
+			"data": tokenData,
+			"exp":  time.Now().Add(time.Hour * 24).Unix(),
 		})
 
 	tokenString, err := token.SignedString(secretKey)

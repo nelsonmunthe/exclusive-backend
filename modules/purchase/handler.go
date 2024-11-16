@@ -3,6 +3,7 @@ package purchase
 import (
 	"exclusive-web/web/dto"
 	"exclusive-web/web/entity"
+	"exclusive-web/web/middleware"
 	"exclusive-web/web/repository"
 	"net/http"
 
@@ -31,20 +32,26 @@ func (handler PurchaseRequestHandler) HandlerPurchase(router *gin.Engine) {
 	}
 
 	purchaseGroup := router.Group("/purchase")
-	purchaseGroup.POST("/create", handler.Create)
+	purchaseGroup.POST("/create", middleware.Authenticate(), handler.Create)
 }
 
 func (handler PurchaseRequestHandler) Create(ctx *gin.Context) {
 	var err error
+	authData, err := middleware.GetAuthDataStruct(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponse())
+		return
+	}
+
 	purchase := entity.CreatePurchase{}
-	// totalPrice := 0;
 
 	err = ctx.BindJSON(&purchase)
-	// fmt.Println("purchase", purchase)
-	// for index, value := range purchase.Purchase {
-	// 	purchase.Purchase[index].Product_id =
-	// 	// fmt.Println("purchase detail", index, value)
-	// }
+
+	for index, _ := range purchase.Purchase {
+		purchase.Purchase[index].Customer_id = authData.UserID
+		// purchase.Purchase[index].Product_id = authData.UserID
+	}
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
 		return

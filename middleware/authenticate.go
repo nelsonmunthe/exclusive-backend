@@ -17,9 +17,10 @@ func Authenticate() gin.HandlerFunc {
 
 		tokenString := strings.Replace(c.GetHeader("Authorization"), "Bearer ", "", -1)
 
-		valid := validateJwt(c, tokenString)
+		authData, valid := validateJwt(c, tokenString)
 
 		if valid {
+			c.Set("authData", authData)
 			c.Next()
 			return
 		}
@@ -40,20 +41,24 @@ func GetAuthData(c *gin.Context) map[string]interface{} {
 	return authDataValue.(map[string]interface{})
 }
 
-func validateJwt(c *gin.Context, tokenString string) bool {
+func validateJwt(c *gin.Context, tokenString string) (map[string]interface{}, bool) {
 
 	var secretKey = []byte("secret-key")
 	token, err := parseJwt(tokenString, secretKey)
-
 	if err != nil {
 		log.Println("middleware.parseJwt:", err)
-		return false
+		return nil, false
 	}
 
-	_, ok := token.Claims.(jwt.MapClaims)
+	claims, ok := token.Claims.(jwt.MapClaims)
 	valid := ok && token.Valid
+	var authData map[string]interface{}
 
-	return valid
+	if valid {
+		authData = claims["data"].(map[string]interface{})
+	}
+
+	return authData, valid
 }
 
 func parseJwt(tokenString string, secret []byte) (*jwt.Token, error) {
@@ -61,7 +66,7 @@ func parseJwt(tokenString string, secret []byte) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-
+		fmt.Println("secret", secret)
 		return secret, nil
 	})
 }
@@ -72,6 +77,12 @@ func defaultUnauthorizedResponse() unauthorizedResponse {
 		Message:      "Auth Failed",
 		ResponseTime: "",
 	}
+}
+
+func GetAuthDataStruct(c *gin.Context) (AuthData, error) {
+	authData := AuthData{}
+	err := authData.LoadFromMap(GetAuthData(c))
+	return authData, err
 }
 
 type unauthorizedResponse struct {
