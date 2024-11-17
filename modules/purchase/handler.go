@@ -47,17 +47,12 @@ func (handler PurchaseRequestHandler) Create(ctx *gin.Context) {
 
 	err = ctx.BindJSON(&purchase)
 
-	for index, _ := range purchase.Purchase {
-		purchase.Purchase[index].Customer_id = authData.UserID
-		// purchase.Purchase[index].Product_id = authData.UserID
-	}
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
 		return
 	}
 
-	response, err := handler.ctrl.Create(ctx, purchase)
+	response, err := handler.ctrl.Create(ctx, purchase, authData.UserID)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
